@@ -1,0 +1,47 @@
+import numpy as np
+import pandas as pd
+
+# Using sample data 
+
+business_data = {
+    "cash_flow": [20000, 25000, 22000, 18000, 24000],  # Monthly cash flow
+    "outstanding_debts": [5000, 7000, 6000, 5500, 5000],  # Monthly debts
+    "profitability": [0.2, 0.18, 0.22, 0.15, 0.2],  # Profit margin as a percentage
+}
+
+data = pd.DataFrame(business_data)
+
+weights = {
+    "cash_flow": 0.4,
+    "outstanding_debts": 0.3,
+    "profitability": 0.3,
+}
+
+# Normalize metrics to make them comparable
+def normalize(series):
+    return (series - series.min()) / (series.max() - series.min())
+
+data["normalized_cash_flow"] = normalize(data["cash_flow"])
+data["normalized_debts"] = 1 - normalize(data["outstanding_debts"]) # Inverse relationship between debt and health
+data["normalized_profitability"] = normalize(data["profitability"])
+
+data["financial_health_score"] = (
+    data["normalized_cash_flow"] * weights["cash_flow"] +
+    data["normalized_debts"] * weights["outstanding_debts"] +
+    data["normalized_profitability"] * weights["profitability"]
+)
+
+def insight(score):
+    if score > 0.8:
+        return "Excellent financial health. Maintain current practices."
+    elif score > 0.6:
+        return "Good financial health. Monitor cash flow and debts."
+    elif score > 0.4:
+        return "Moderate financial health. Consider improving profitability."
+    else:
+        return "Poor financial health. Take immediate action to reduce debts and improve cash flow."
+
+
+data["insights"] = data["financial_health_score"].apply(insight)
+
+print(data[["cash_flow", "outstanding_debts", "profitability", "financial_health_score", "insights"]])
